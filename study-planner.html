@@ -997,14 +997,20 @@ Example of correct format:
     const data = await response.json();
     if(!response.ok) throw new Error(data.error?.message || 'API error');
 
-    const raw = data.content.map(b => b.type==='text' ? b.text : '').join('').trim();
+    // Extract text from response (works for both Anthropic and Gemini formats)
+    let raw = '';
+    if(data.content) {
+      raw = data.content.map(b => b.type==='text' ? b.text : '').join('').trim();
+    } else if(data.candidates) {
+      raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    }
+    console.log('AI raw response:', raw.slice(0, 200));
 
-    // Strip any accidental markdown fences using string methods
-    let cleaned = raw.trim();
-    if(cleaned.startsWith('\`')) { cleaned = cleaned.replace(/[\`]{3}[a-zA-Z]*/, '').replace(/[\`]{3}/, '').trim(); }
-    const arrStart = cleaned.indexOf('['); const arrEnd = cleaned.lastIndexOf(']');
-    if(arrStart !== -1 && arrEnd !== -1) cleaned = cleaned.slice(arrStart, arrEnd+1);
-    const plan = JSON.parse(cleaned);
+    // Extract JSON array from response
+    const arrStart = raw.indexOf('[');
+    const arrEnd = raw.lastIndexOf(']');
+    if(arrStart === -1 || arrEnd === -1) throw new Error('No JSON array found in response');
+    const plan = JSON.parse(raw.slice(arrStart, arrEnd+1));
 
     if(!Array.isArray(plan) || plan.length === 0) throw new Error('Empty plan returned');
 
