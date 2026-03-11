@@ -58,7 +58,7 @@
   .view.active { display: block; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow2); margin-bottom: 14px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow2); margin-bottom: 14px; animation: slideUp 0.3s ease both; }
   .card-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 
   .btn { padding: 8px 16px; border-radius: 10px; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.18s; display: inline-flex; align-items: center; gap: 6px; }
@@ -85,22 +85,26 @@
   /* CALENDAR */
   .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .cal-month { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--text); }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; width: 100%; overflow: hidden; }
   .cal-day-name { text-align: center; font-size: 0.7rem; font-weight: 500; color: var(--text3); padding: 5px 0; text-transform: uppercase; letter-spacing: 0.04em; }
-  .cal-cell { min-height: 68px; border-radius: 9px; padding: 5px; background: var(--card); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; }
-  .cal-cell:hover { background: var(--soft); border-color: var(--warm1); }
+  .cal-cell { min-height: 68px; max-width: 100%; border-radius: 9px; padding: 5px; background: var(--card); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; overflow: hidden; animation: cellFadeIn 0.3s ease both; }
+  .cal-cell:hover { background: var(--soft); border-color: var(--warm1); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(160,100,60,0.12); }
   .cal-cell.other-month { opacity: 0.3; }
   .cal-cell.today { border-color: var(--warm1); background: linear-gradient(135deg, rgba(232,149,109,0.12), rgba(212,120,90,0.07)); }
   .cal-cell.today .cal-date { color: var(--warm1); font-weight: 600; }
   .cal-date { font-size: 0.78rem; font-weight: 500; color: var(--text2); margin-bottom: 3px; }
-  .cal-event-dot { font-size: 0.62rem; padding: 1px 4px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cal-event-dot { font-size: 0.58rem; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; animation: dotPop 0.2s ease both; }
   .cal-event-dot.study   { background: rgba(125,184,122,0.25); color: #4a8a47; }
   .cal-event-dot.exam    { background: rgba(212,105,90,0.2);   color: #9a3a2a; }
   .cal-event-dot.event   { background: rgba(122,158,196,0.2);  color: #3a6a9a; }
   .cal-event-dot.routine { background: rgba(196,149,106,0.2);  color: #7a5030; }
+  @keyframes cellFadeIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+  @keyframes dotPop { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes popIn2 { from{opacity:0;transform:scale(0.88)} to{opacity:1;transform:scale(1)} }
 
   /* TODO */
-  .todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 13px; border-radius: 11px; border: 1px solid var(--border); background: var(--card); margin-bottom: 7px; transition: all 0.2s; }
+  .todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 13px; border-radius: 11px; border: 1px solid var(--border); background: var(--card); margin-bottom: 7px; transition: all 0.2s; animation: slideUp 0.25s ease both; }
   .todo-item:hover { box-shadow: var(--shadow2); }
   .todo-item.done { opacity: 0.52; }
   .todo-item.done .todo-text { text-decoration: line-through; color: var(--text3); }
@@ -135,7 +139,7 @@
   .color-5 { background: rgba(212,190,120,0.2); color: #7a6010; border: 1px solid rgba(212,190,120,0.3); }
 
   /* EXAMS */
-  .exam-item { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 11px; border: 1px solid var(--border); background: var(--card); margin-bottom: 9px; transition: box-shadow 0.2s; }
+  .exam-item { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 11px; border: 1px solid var(--border); background: var(--card); margin-bottom: 9px; transition: box-shadow 0.2s; animation: slideUp 0.25s ease both; }
   .exam-item:hover { box-shadow: var(--shadow); }
   .exam-countdown { flex-shrink: 0; text-align: center; background: linear-gradient(135deg, var(--soft), var(--soft2)); border-radius: 9px; padding: 7px 11px; min-width: 54px; }
   .exam-days { font-size: 1.25rem; font-weight: 600; color: var(--accent); font-family: 'Playfair Display', serif; line-height: 1; }
@@ -187,7 +191,8 @@
   @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
   /* AI PLAN */
-  .ai-session-item { display:flex; align-items:flex-start; gap:10px; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--card); margin-bottom:6px; }
+  .ai-session-item { display:flex; align-items:flex-start; gap:10px; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--card); margin-bottom:6px; animation: slideUp 0.2s ease both; transition: all 0.15s; }
+  .ai-session-item:hover { transform: translateX(3px); box-shadow: var(--shadow2); }
   .ai-session-date { flex-shrink:0; text-align:center; background:var(--soft); border-radius:8px; padding:5px 9px; min-width:48px; }
   .ai-session-day  { font-size:0.65rem; color:var(--text3); text-transform:uppercase; letter-spacing:0.04em; }
   .ai-session-num  { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--accent); line-height:1.1; }
@@ -208,9 +213,9 @@
     .plan-week-grid { gap: 2px; }
     .plan-day-name { font-size: 0.6rem; }
     .plan-block { font-size: 0.63rem; padding: 3px 4px; min-height: 26px; }
-    .cal-cell { min-height: 50px; padding: 3px; }
-    .cal-date { font-size: 0.7rem; }
-    .cal-event-dot { font-size: 0.56rem; }
+    .cal-cell { min-height: 44px; padding: 2px; }
+    .cal-date { font-size: 0.65rem; }
+    .cal-event-dot { font-size: 0.5rem; padding: 1px 2px; }
     .content { padding: 14px 12px; }
   }
 </style>
