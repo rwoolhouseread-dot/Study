@@ -999,13 +999,10 @@ Example of correct format:
 
     const raw = data.content.map(b => b.type==='text' ? b.text : '').join('').trim();
 
-    // Strip any accidental markdown fences
-    const cleaned = raw.replace(/^```[a-z]*
-?/,'').replace(/
-    const plan = JSON.parse(cleaned);
-
-    if(!Array.isArray(plan) || plan.length === 0) throw new Error('Empty plan returned');
-
+    const arrStart = raw.indexOf('[');
+const arrEnd = raw.lastIndexOf(']');
+const plan = JSON.parse(arrStart !== -1 ? raw.slice(arrStart, arrEnd+1) : raw);
+    
     // Filter out any dates after exam date or before start date
     pendingAIPlan = plan.filter(s => s.date >= startDate && s.date < examDate);
     pendingAIPlan.sort((a,b) => a.date.localeCompare(b.date));
