@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>StudyFlow</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="StudyFlow">
+<meta name="theme-color" content="#fdf8f3">
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22StudyFlow%22%2C%22short_name%22%3A%22StudyFlow%22%2C%22description%22%3A%22Your%20personal%20study%20planner%22%2C%22start_url%22%3A%22.%2Fstudy-planner.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fdf8f3%22%2C%22theme_color%22%3A%22%23e8956d%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520viewBox%253D%25270%25200%2520512%2520512%2527%253E%253Crect%2520width%253D%2527512%2527%2520height%253D%2527512%2527%2520rx%253D%2527100%2527%2520fill%253D%2527%2523fdf8f3%2527%252F%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<link rel="apple-touch-icon" id="apple-icon" href="">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -764,6 +771,52 @@ document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e
 function fmtDate(ds){if(!ds)return'';return new Date(ds+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
 
 document.addEventListener('keydown',e=>{if(e.key==='n'&&!e.target.matches('input,textarea,select'))openQuickAdd();});
+
+// Generate app icon as canvas and set as apple-touch-icon
+function generateIcon(){
+  try {
+    const c=document.createElement('canvas');
+    c.width=512;c.height=512;
+    const ctx=c.getContext('2d');
+    // Rounded square background
+    const r=100;
+    ctx.beginPath();
+    ctx.moveTo(r,0);ctx.lineTo(512-r,0);ctx.quadraticCurveTo(512,0,512,r);
+    ctx.lineTo(512,512-r);ctx.quadraticCurveTo(512,512,512-r,512);
+    ctx.lineTo(r,512);ctx.quadraticCurveTo(0,512,0,512-r);
+    ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
+    const grad=ctx.createLinearGradient(0,0,512,512);
+    grad.addColorStop(0,'#fdf0e6');
+    grad.addColorStop(1,'#f5d5b8');
+    ctx.fillStyle=grad;ctx.fill();
+    // Soft glow
+    const cg=ctx.createRadialGradient(256,220,30,256,220,180);
+    cg.addColorStop(0,'rgba(232,149,109,0.3)');
+    cg.addColorStop(1,'rgba(212,120,90,0.0)');
+    ctx.fillStyle=cg;ctx.beginPath();ctx.arc(256,220,180,0,Math.PI*2);ctx.fill();
+    // Book left page
+    ctx.fillStyle='#d4785a';
+    ctx.beginPath();ctx.roundRect(105,145,118,228,10);ctx.fill();
+    // Book right page
+    ctx.fillStyle='#c4956a';
+    ctx.beginPath();ctx.roundRect(233,145,118,228,10);ctx.fill();
+    // Spine
+    ctx.fillStyle='#b5694f';
+    ctx.beginPath();ctx.roundRect(219,132,30,252,6);ctx.fill();
+    // Page lines left
+    ctx.fillStyle='rgba(255,248,240,0.7)';
+    [185,213,241,269,297,325].forEach(y=>{ctx.beginPath();ctx.roundRect(120,y,88,11,4);ctx.fill();});
+    // Page lines right
+    [185,213,241,269,297,325].forEach(y=>{ctx.beginPath();ctx.roundRect(248,y,88,11,4);ctx.fill();});
+    // Warm sparkle
+    ctx.fillStyle='#e8956d';
+    ctx.font='72px serif';
+    ctx.textAlign='center';
+    ctx.fillText('✦',390,175);
+    document.getElementById('apple-icon').href=c.toDataURL('image/png');
+  } catch(e){}
+}
+generateIcon();
 
 init();
 </script>
