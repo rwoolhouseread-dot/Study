@@ -1002,7 +1002,6 @@ Example of correct format:
     // Strip any accidental markdown fences
     const cleaned = raw.replace(/^```[a-z]*
 ?/,'').replace(/
-?```$/,'').trim();
     const plan = JSON.parse(cleaned);
 
     if(!Array.isArray(plan) || plan.length === 0) throw new Error('Empty plan returned');
