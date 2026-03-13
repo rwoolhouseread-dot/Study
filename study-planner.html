@@ -190,6 +190,38 @@
   .skeleton { background: linear-gradient(90deg, var(--soft) 25%, var(--soft2) 50%, var(--soft) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; height: 44px; margin-bottom: 8px; }
   @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
+  /* RESOURCES */
+  .resource-item { display:flex; align-items:flex-start; gap:12px; padding:13px 15px; border-radius:12px; border:1px solid var(--border); background:var(--card); margin-bottom:8px; transition:all 0.2s; animation:slideUp 0.25s ease both; }
+  .resource-item:hover { box-shadow:var(--shadow); transform:translateY(-1px); }
+  .resource-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+  .resource-icon.video   { background:rgba(212,105,90,0.15); }
+  .resource-icon.website { background:rgba(122,158,196,0.15); }
+  .resource-icon.notes   { background:rgba(125,184,122,0.15); }
+  .resource-icon.other   { background:rgba(196,149,106,0.15); }
+  .resource-info { flex:1; min-width:0; }
+  .resource-title { font-size:0.9rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .resource-meta  { font-size:0.73rem; color:var(--text3); margin-top:2px; }
+  .resource-url   { font-size:0.73rem; color:var(--warm2); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; text-decoration:none; }
+  .resource-url:hover { text-decoration:underline; }
+
+  /* CONFIDENCE */
+  .conf-item { display:flex; align-items:center; gap:12px; padding:13px 15px; border-radius:12px; border:1px solid var(--border); background:var(--card); margin-bottom:8px; transition:all 0.2s; animation:slideUp 0.25s ease both; }
+  .conf-item:hover { box-shadow:var(--shadow2); }
+  .conf-bar-wrap { flex:1; }
+  .conf-topic-name { font-size:0.9rem; font-weight:500; margin-bottom:5px; }
+  .conf-subject-tag { font-size:0.7rem; color:var(--text3); margin-bottom:6px; }
+  .conf-bar { height:8px; border-radius:10px; background:var(--soft); overflow:hidden; }
+  .conf-fill { height:100%; border-radius:10px; transition:width 0.5s ease; }
+  .conf-stars { display:flex; gap:5px; flex-shrink:0; }
+  .conf-star-pick { width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--soft); cursor:pointer; font-size:0.75rem; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+  .conf-star-pick:hover, .conf-star-pick.active { background:var(--warm1); color:white; border-color:var(--warm1); transform:scale(1.1); }
+  .conf-star-btn { flex:1; padding:8px 4px; border-radius:8px; border:1px solid var(--border); background:var(--soft); cursor:pointer; font-size:0.78rem; text-align:center; transition:all 0.15s; }
+  .conf-star-btn.active { background:var(--warm1); color:white; border-color:var(--warm1); }
+  .conf-section-header { font-size:0.78rem; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:0.05em; margin:16px 0 8px; }
+
+  /* POMODORO */
+  #pomodoroWidget { transition: all 0.3s; }
+
   /* AI PLAN */
   .ai-session-item { display:flex; align-items:flex-start; gap:10px; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--card); margin-bottom:6px; animation: slideUp 0.2s ease both; transition: all 0.15s; }
   .ai-session-item:hover { transform: translateX(3px); box-shadow: var(--shadow2); }
@@ -241,6 +273,7 @@
         </button>
         <div class="notif-badge" id="notifCount" style="display:none">0</div>
       </div>
+      <button class="btn-icon" onclick="togglePomo()" title="Pomodoro Timer" id="pomHeaderBtn" style="font-size:0.85rem">🍅</button>
       <button class="btn btn-primary btn-sm" onclick="openQuickAdd()">+ Add</button>
     </div>
   </header>
@@ -253,6 +286,8 @@
     <button class="tab" onclick="switchTab('todos',this)">To-Do</button>
     <button class="tab" onclick="switchTab('notifications',this)">Notifications</button>
     <button class="tab" onclick="switchTab('aiplan',this)">✨ AI Plan</button>
+    <button class="tab" onclick="switchTab('resources',this)">📚 Resources</button>
+    <button class="tab" onclick="switchTab('confidence',this)">📊 Confidence</button>
   </nav>
 
   <div class="content">
@@ -376,6 +411,35 @@
       </div>
     </div>
 
+    <!-- RESOURCES -->
+    <div class="view" id="view-resources">
+      <div class="section-header">
+        <div class="section-title">📚 Resources</div>
+        <button class="btn btn-primary btn-sm" onclick="openAddResource()">+ Add Resource</button>
+      </div>
+      <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="filterResources('all')"     id="rf-all"     style="background:var(--soft2)">All</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterResources('video')"   id="rf-video">Videos</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterResources('website')" id="rf-website">Websites</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterResources('notes')"   id="rf-notes">Notes</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterResources('other')"   id="rf-other">Other</button>
+      </div>
+      <div id="resourceList"></div>
+    </div>
+
+    <!-- CONFIDENCE TRACKER -->
+    <div class="view" id="view-confidence">
+      <div class="section-header">
+        <div class="section-title">📊 Confidence</div>
+        <button class="btn btn-primary btn-sm" onclick="openAddConfidence()">+ Add Topic</button>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,rgba(232,149,109,0.07),rgba(212,120,90,0.03))">
+        <div class="card-title" style="font-size:0.95rem">How confident are you in each topic?</div>
+        <p style="font-size:0.82rem;color:var(--text2)">Rate topics 1–5. Red = needs work, green = confident. Focus your study time on the low ones!</p>
+      </div>
+      <div id="confidenceList"></div>
+    </div>
+
     <!-- AI STUDY PLAN -->
     <div class="view" id="view-aiplan">
       <div class="section-header">
@@ -460,6 +524,25 @@
     </div>
 
   </div>
+</div>
+
+<!-- Pomodoro Timer Widget -->
+<div id="pomodoroWidget" style="display:none;position:fixed;bottom:20px;right:20px;z-index:500;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:16px 20px;box-shadow:0 8px 32px rgba(160,100,60,0.2);min-width:200px;animation:popIn2 0.3s ease">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--accent)" id="pomLabel">Focus Session</div>
+    <button onclick="closePomo()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0">✕</button>
+  </div>
+  <div style="text-align:center;font-family:'Playfair Display',serif;font-size:2.8rem;color:var(--accent);line-height:1;margin-bottom:12px" id="pomTime">25:00</div>
+  <div style="display:flex;gap:7px;justify-content:center;margin-bottom:10px">
+    <button class="btn btn-primary btn-sm" onclick="togglePomo()" id="pomBtn">▶ Start</button>
+    <button class="btn btn-ghost btn-sm" onclick="resetPomo()">↺ Reset</button>
+  </div>
+  <div style="display:flex;gap:5px;justify-content:center">
+    <button class="btn btn-ghost btn-sm" onclick="setPomo('focus')"   id="pt-focus"   style="font-size:0.7rem;padding:4px 8px;background:var(--soft2)">25m Focus</button>
+    <button class="btn btn-ghost btn-sm" onclick="setPomo('short')"   id="pt-short"   style="font-size:0.7rem;padding:4px 8px">5m Break</button>
+    <button class="btn btn-ghost btn-sm" onclick="setPomo('long')"    id="pt-long"    style="font-size:0.7rem;padding:4px 8px">15m Break</button>
+  </div>
+  <div style="margin-top:10px;text-align:center;font-size:0.72rem;color:var(--text3)" id="pomSessions">Sessions today: 0</div>
 </div>
 
 <!-- Notification banner -->
@@ -558,6 +641,45 @@
   </div>
 </div>
 
+<div class="modal-bg" id="modal-resource">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Resource</div><button class="btn-icon" onclick="closeModal('modal-resource')">✕</button></div>
+    <div class="form-group"><label>Title *</label><input type="text" id="res-title" placeholder="e.g. Khan Academy - Photosynthesis"></div>
+    <div class="form-group"><label>URL / Link</label><input type="url" id="res-url" placeholder="https://..."></div>
+    <div class="form-row">
+      <div class="form-group"><label>Subject</label><input type="text" id="res-subject" placeholder="e.g. Biology"></div>
+      <div class="form-group"><label>Type</label><select id="res-type"><option value="video">Video</option><option value="website">Website</option><option value="notes">Notes</option><option value="other">Other</option></select></div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="res-notes" rows="2" placeholder="What's useful about this?"></textarea></div>
+    <div style="display:flex;gap:9px;margin-top:4px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-resource')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="saveResource()">Add Resource</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-confidence">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Topic</div><button class="btn-icon" onclick="closeModal('modal-confidence')">✕</button></div>
+    <div class="form-group"><label>Topic name *</label><input type="text" id="conf-topic" placeholder="e.g. Photosynthesis"></div>
+    <div class="form-group"><label>Subject</label><input type="text" id="conf-subject" placeholder="e.g. Biology"></div>
+    <div class="form-group">
+      <label>Confidence level</label>
+      <div style="display:flex;gap:8px;margin-top:6px" id="conf-stars">
+        <button class="conf-star-btn active" onclick="setConfStar(1)">😰 1</button>
+        <button class="conf-star-btn" onclick="setConfStar(2)">😕 2</button>
+        <button class="conf-star-btn" onclick="setConfStar(3)">😐 3</button>
+        <button class="conf-star-btn" onclick="setConfStar(4)">🙂 4</button>
+        <button class="conf-star-btn" onclick="setConfStar(5)">😄 5</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:4px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-confidence')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="saveConfidence()">Add Topic</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="modal-day">
   <div class="modal">
     <div class="modal-header"><div class="modal-title" id="dayModalTitle"></div><button class="btn-icon" onclick="closeModal('modal-day')">✕</button></div>
@@ -634,7 +756,7 @@ window.addEventListener('offline', ()=>_applySync('error'));
 
 // ── State ──
 let state={
-  todos:[],events:[],exams:[],
+  todos:[],events:[],exams:[],resources:[],confidence:[],
   subjects:['Maths','English','Science'],
   routine:{0:Array.from({length:7},()=>[]),1:Array.from({length:7},()=>[])},
   notifSettings:{daily:false,exam:true,task:true,dailyTime:'08:00'},
@@ -712,6 +834,14 @@ function startListeners(){
     snap=>{state.exams=snap.docs.map(d=>({_fid:d.id,...d.data()}));renderExams();renderDashboard();},
     e=>handleFsError(e)
   );
+  onSnapshot(collection(db,'resources'),
+    snap=>{state.resources=snap.docs.map(d=>({_fid:d.id,...d.data()}));renderResources();},
+    e=>handleFsError(e)
+  );
+  onSnapshot(collection(db,'confidence'),
+    snap=>{state.confidence=snap.docs.map(d=>({_fid:d.id,...d.data()}));renderConfidence();},
+    e=>handleFsError(e)
+  );
   onSnapshot(doc(db,'settings','main'),
     snap=>{
       if(snap.exists()){
@@ -752,6 +882,8 @@ window.switchTab=function(id,el){
   if(id==='exams')renderExams();
   if(id==='todos')renderTodos();
   if(id==='dashboard')renderDashboard();
+  if(id==='resources')renderResources();
+  if(id==='confidence')renderConfidence();
 };
 
 // ── Calendar ──
@@ -1130,6 +1262,221 @@ function renderSavedPlans() {
         <span class="badge badge-warm">Added</span>
       </div>
     </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+//  POMODORO TIMER
+// ══════════════════════════════════════════
+let pomInterval = null;
+let pomSeconds = 25 * 60;
+let pomRunning = false;
+let pomMode = 'focus';
+let pomSessionsToday = parseInt(localStorage.getItem('sf_pom_sessions') || '0');
+let pomWidgetOpen = false;
+
+function updatePomDisplay() {
+  const m = Math.floor(pomSeconds / 60).toString().padStart(2,'0');
+  const s = (pomSeconds % 60).toString().padStart(2,'0');
+  document.getElementById('pomTime').textContent = `${m}:${s}`;
+  document.title = pomRunning ? `${m}:${s} — StudyFlow` : 'StudyFlow';
+  document.getElementById('pomSessions').textContent = `Sessions today: ${pomSessionsToday}`;
+}
+
+window.togglePomo = function() {
+  const widget = document.getElementById('pomodoroWidget');
+  if (!pomWidgetOpen) {
+    widget.style.display = 'block';
+    pomWidgetOpen = true;
+    updatePomDisplay();
+    return;
+  }
+  if (pomRunning) {
+    clearInterval(pomInterval);
+    pomRunning = false;
+    document.getElementById('pomBtn').textContent = '▶ Start';
+  } else {
+    pomRunning = true;
+    document.getElementById('pomBtn').textContent = '⏸ Pause';
+    pomInterval = setInterval(() => {
+      pomSeconds--;
+      updatePomDisplay();
+      if (pomSeconds <= 0) {
+        clearInterval(pomInterval);
+        pomRunning = false;
+        document.getElementById('pomBtn').textContent = '▶ Start';
+        if (pomMode === 'focus') {
+          pomSessionsToday++;
+          localStorage.setItem('sf_pom_sessions', pomSessionsToday);
+        }
+        showBanner(pomMode === 'focus' ? '🍅 Focus complete!' : '☕ Break over!',
+          pomMode === 'focus' ? 'Great work! Take a break.' : 'Back to studying!');
+        updatePomDisplay();
+      }
+    }, 1000);
+  }
+};
+
+window.resetPomo = function() {
+  clearInterval(pomInterval);
+  pomRunning = false;
+  document.getElementById('pomBtn').textContent = '▶ Start';
+  const durations = { focus: 25*60, short: 5*60, long: 15*60 };
+  pomSeconds = durations[pomMode];
+  updatePomDisplay();
+};
+
+window.setPomo = function(mode) {
+  pomMode = mode;
+  clearInterval(pomInterval);
+  pomRunning = false;
+  document.getElementById('pomBtn').textContent = '▶ Start';
+  const durations = { focus: 25*60, short: 5*60, long: 15*60 };
+  pomSeconds = durations[mode];
+  document.getElementById('pomLabel').textContent = mode === 'focus' ? 'Focus Session' : mode === 'short' ? 'Short Break' : 'Long Break';
+  ['focus','short','long'].forEach(m => {
+    document.getElementById(`pt-${m}`).style.background = m === mode ? 'var(--soft2)' : 'var(--soft)';
+  });
+  updatePomDisplay();
+};
+
+window.closePomo = function() {
+  document.getElementById('pomodoroWidget').style.display = 'none';
+  pomWidgetOpen = false;
+  clearInterval(pomInterval);
+  pomRunning = false;
+  document.getElementById('pomBtn').textContent = '▶ Start';
+  document.title = 'StudyFlow';
+};
+
+// ══════════════════════════════════════════
+//  RESOURCES
+// ══════════════════════════════════════════
+let resourceFilter = 'all';
+const RESOURCE_ICONS = { video:'🎬', website:'🌐', notes:'📝', other:'📎' };
+
+window.openAddResource = function() {
+  ['res-title','res-url','res-subject','res-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('res-type').value = 'video';
+  openModal('modal-resource');
+};
+
+window.saveResource = async function() {
+  const title = document.getElementById('res-title').value.trim();
+  if (!title) return;
+  await fsAdd('resources', {
+    title,
+    url:     document.getElementById('res-url').value.trim(),
+    subject: document.getElementById('res-subject').value.trim(),
+    type:    document.getElementById('res-type').value,
+    notes:   document.getElementById('res-notes').value.trim(),
+    created: new Date().toISOString()
+  });
+  closeModal('modal-resource');
+};
+
+window.deleteResource = function(fid) { fsDel('resources', fid); };
+
+window.filterResources = function(f) {
+  resourceFilter = f;
+  ['all','video','website','notes','other'].forEach(id => {
+    document.getElementById('rf-'+id).style.background = id === f ? 'var(--soft2)' : 'var(--soft)';
+  });
+  renderResources();
+};
+
+function renderResources() {
+  const list = document.getElementById('resourceList');
+  if (!list) return;
+  let res = [...(state.resources || [])];
+  if (resourceFilter !== 'all') res = res.filter(r => r.type === resourceFilter);
+  res.sort((a,b) => (b.created||'').localeCompare(a.created||''));
+  if (!res.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📚</div><div class="empty-text">No resources yet.<br>Add links to videos, websites or notes.</div></div>`;
+    return;
+  }
+  // Group by subject
+  const groups = {};
+  res.forEach(r => { const s = r.subject || 'General'; if(!groups[s]) groups[s]=[]; groups[s].push(r); });
+  list.innerHTML = Object.entries(groups).map(([subj, items]) => `
+    <div class="conf-section-header">${subj}</div>
+    ${items.map(r => `
+    <div class="resource-item">
+      <div class="resource-icon ${r.type}">${RESOURCE_ICONS[r.type]||'📎'}</div>
+      <div class="resource-info">
+        <div class="resource-title">${r.title}</div>
+        ${r.subject ? `<div class="resource-meta"><span class="badge badge-warm">${r.subject}</span> <span style="margin-left:4px">${r.type}</span></div>` : ''}
+        ${r.url ? `<a class="resource-url" href="${r.url}" target="_blank" rel="noopener">${r.url}</a>` : ''}
+        ${r.notes ? `<div style="font-size:0.75rem;color:var(--text2);margin-top:3px">${r.notes}</div>` : ''}
+      </div>
+      <button class="btn-icon btn-sm" onclick="deleteResource('${r._fid}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+    </div>`).join('')}
+  `).join('');
+}
+
+// ══════════════════════════════════════════
+//  CONFIDENCE TRACKER
+// ══════════════════════════════════════════
+let pendingConfLevel = 1;
+
+window.openAddConfidence = function() {
+  document.getElementById('conf-topic').value = '';
+  document.getElementById('conf-subject').value = '';
+  setConfStar(3);
+  openModal('modal-confidence');
+};
+
+window.setConfStar = function(n) {
+  pendingConfLevel = n;
+  document.querySelectorAll('.conf-star-btn').forEach((b,i) => {
+    b.classList.toggle('active', i+1 === n);
+  });
+};
+
+window.saveConfidence = async function() {
+  const topic = document.getElementById('conf-topic').value.trim();
+  if (!topic) return;
+  await fsAdd('confidence', {
+    topic,
+    subject:  document.getElementById('conf-subject').value.trim(),
+    level:    pendingConfLevel,
+    updated:  new Date().toISOString()
+  });
+  closeModal('modal-confidence');
+};
+
+window.updateConfidence = async function(fid, level) {
+  await fsUpdate('confidence', fid, { level, updated: new Date().toISOString() });
+};
+
+window.deleteConfidence = function(fid) { fsDel('confidence', fid); };
+
+function renderConfidence() {
+  const list = document.getElementById('confidenceList');
+  if (!list) return;
+  const items = [...(state.confidence || [])];
+  if (!items.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">No topics yet.<br>Add topics to track your confidence.</div></div>`;
+    return;
+  }
+  items.sort((a,b) => a.level - b.level); // lowest confidence first
+  const groups = {};
+  items.forEach(r => { const s = r.subject || 'General'; if(!groups[s]) groups[s]=[]; groups[s].push(r); });
+  const confColors = ['','#d4695a','#e8956d','#c4956a','#7db87a','#4a8a47'];
+  const confEmoji  = ['','😰','😕','😐','🙂','😄'];
+  list.innerHTML = Object.entries(groups).map(([subj, items]) => `
+    <div class="conf-section-header">${subj}</div>
+    ${items.map(r => `
+    <div class="conf-item">
+      <div class="conf-bar-wrap">
+        <div class="conf-topic-name">${r.topic}</div>
+        <div class="conf-bar"><div class="conf-fill" style="width:${r.level*20}%;background:${confColors[r.level]}"></div></div>
+      </div>
+      <div class="conf-stars">
+        ${[1,2,3,4,5].map(n => `<button class="conf-star-pick${r.level===n?' active':''}" onclick="updateConfidence('${r._fid}',${n})" title="${confEmoji[n]} ${n}/5">${confEmoji[n]}</button>`).join('')}
+      </div>
+      <button class="btn-icon btn-sm" onclick="deleteConfidence('${r._fid}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+    </div>`).join('')}
+  `).join('');
 }
 
 init();
